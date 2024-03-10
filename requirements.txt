@@ -1,0 +1,15 @@
+pyautogui
+opencv-python
+pytesseract
+pillow
+numpy
+pynput
+pyaudio
+whisper
+SpeechRecognition
+flask
+flask-login
+flask-sqlalchemy
+pycryptodome
+sounddevice
+ffmpeg
