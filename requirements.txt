@@ -1,4 +1,4 @@
-pyautogui
+mss
 opencv-python
 pytesseract
 pillow

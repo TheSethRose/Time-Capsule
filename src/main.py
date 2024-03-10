@@ -11,7 +11,7 @@ screen_recorder.start_recording()
 try:
     while True:
         # Keep the program running until interrupted
-        time.sleep(1)
+        time.sleep(0.5)
 except KeyboardInterrupt:
     screen_recorder.stop_recording()
     #audio_recorder.stop_recording()

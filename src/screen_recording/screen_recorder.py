@@ -1,101 +1,124 @@
-import os
-import threading
+import mss
+import mss.tools
 import time
-import numpy as np
-import pyautogui
 from PIL import Image
-from datetime import datetime, timedelta
-import ffmpeg
-import cv2
+from datetime import datetime
+from math import ceil, floor, sqrt
+import os
+import subprocess
+import threading
 
 class ScreenRecorder:
-    def __init__(self, interval=1, save_interval=30, output_dir="/Users/sethrose/Documents/Development/Repositories/time-capsule/recordings/screenshots"):
-        self.output_dir = output_dir
-        self.interval = interval
-        self.save_interval = save_interval
+    def __init__(self, fps=1, video_duration=30):
+        self.fps = fps
+        self.video_duration = video_duration
         self.running = False
-        self.thread = None
-        self.process = None
-
+        #self.video_dir = os.path.join(os.getcwd(), "recordings", "videos")
+        #self.save_dir = os.path.join(self.video_dir, "temp")
+        self.save_dir = "/Users/sethrose/Documents/Development/Repositories/time-capsule/recordings/videos/temp/"
+        self.video_dir = "/Users/sethrose/Documents/Development/Repositories/time-capsule/recordings/videos/"
+       
     def start_recording(self):
-        self.running = True
-        self.thread = threading.Thread(target=self._record_screen)
-        self.thread.start()
-        print("Screen recording started.")
+        if not self.running:
+            self.running = True
+            self.recorder_thread = threading.Thread(target=self._record)
+            self.recorder_thread.start()
+
+    def _record(self):
+        with mss.mss() as sct:
+            monitors = sct.monitors[1:]
+            screenshot_count = 0
+            start_time = time.time()
+            screenshots = []
+
+            while self.running:
+                screenshot = self.capture_screenshot(monitors)
+                screenshots.append(screenshot)
+                screenshot_count += 1
+
+                if screenshot_count % 30 == 0:
+                    elapsed_time = time.time() - start_time
+                    if elapsed_time >= self.video_duration:
+                        video_thread = threading.Thread(target=self.create_video_from_screenshots, args=(screenshots,))
+                        video_thread.start()
+                        screenshots = []
+                        start_time = time.time()
+                        screenshot_count = 0
+
+                time.sleep(0.5)
 
     def stop_recording(self):
         self.running = False
-        if self.thread is not None:
-            self.thread.join()
-        if self.process is not None:
-            self.process.stdin.close()
-            self.process.wait()
-        print("Screen recording stopped.")
+        self.recorder_thread.join()
 
-    def _record_screen(self):
-        screen_size = pyautogui.size()
-        video_size = (screen_size[0], screen_size[1])  # Set video size to match the screen size
-        fps = 1  # Set the desired frame rate to 0.5 fps
+    def capture_screenshot(self, monitors):
+        with mss.mss() as sct:
+            screenshots = [sct.grab(monitor) for monitor in monitors]
+            num_monitors = len(screenshots)
 
-        start_time = datetime.now()
-        timestamp = start_time.strftime("%Y%m%d_%H%M%S")
-        video_filename = f"screen_recording_{timestamp}.mp4"
-        video_filepath = os.path.join(self.output_dir, video_filename)
+            rows, cols = self.optimal_grid(num_monitors)
 
-        self.process = (
-            ffmpeg
-            .input('pipe:', format='rawvideo', pix_fmt='bgr24', s='{}x{}'.format(video_size[0], video_size[1]))
-            .output(video_filepath, vcodec='libx264', pix_fmt='yuv420p', r=fps)
-            .overwrite_output()
-            .run_async(pipe_stdin=True)
-        )
+            images = [Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX") for img in screenshots]
 
-        while self.running:
-            screenshot = self._capture_screenshot()
-            frame = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
-            frame = cv2.resize(frame, video_size)  # Resize the frame to match the video size
-            self.process.stdin.write(frame.tobytes())
+            max_width = max(monitor['width'] for monitor in monitors)
+            max_height = max(monitor['height'] for monitor in monitors)
 
-            current_time = datetime.now()
-            elapsed_time = (current_time - start_time).total_seconds()
+            resized_images = self.resize_images(images, max_width, max_height)
 
-            if elapsed_time >= self.save_interval:
-                self.process.stdin.close()
-                self.process.wait()
-                print(f"Screen recording saved: {video_filepath}")
+            grid_width = max(img.width for img in resized_images) * cols
+            grid_height = sum(max(img.height for img in resized_images[i:i+cols]) for i in range(0, num_monitors, cols))
+            grid = Image.new('RGB', (grid_width, grid_height))
 
-                start_time = current_time
-                timestamp = start_time.strftime("%Y%m%d_%H%M%S")
-                video_filename = f"screen_recording_{timestamp}.mp4"
-                video_filepath = os.path.join(self.output_dir, video_filename)
+            y_offset = 0
+            for i in range(0, num_monitors, cols):
+                row_images = resized_images[i:i+cols]
+                x_offset = self.center_images(row_images, grid_width)
+                for img in row_images:
+                    grid.paste(img, (x_offset, y_offset))
+                    x_offset += img.width
+                y_offset += max(img.height for img in row_images)
 
-                self.process = (
-                    ffmpeg
-                    .input('pipe:', format='rawvideo', pix_fmt='bgr24', s='{}x{}'.format(video_size[0], video_size[1]))
-                    .output(video_filepath, vcodec='libx264', pix_fmt='yuv420p', r=fps)
-                    .overwrite_output()
-                    .run_async(pipe_stdin=True)
-                )
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+            filename = f"screenshot_{timestamp}.png"
+            filepath = os.path.join(self.save_dir, filename)
+            grid.save(filepath)
 
-            self._delete_old_recordings()
-            time.sleep(self.interval)
+            return filepath
 
-        self.process.stdin.close()
-        self.process.wait()
-        print(f"Screen recording saved: {video_filepath}")
+    def create_video_from_screenshots(self, screenshots):
+        video_timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        video_filename = f"recording_{video_timestamp}.mp4"
+        video_filepath = os.path.join(self.video_dir, video_filename)
 
-    def _capture_screenshot(self):
-        screenshot = pyautogui.screenshot()
-        return screenshot
 
-    def _delete_old_recordings(self):
-        current_time = datetime.now()
-        thirty_minutes_ago = current_time - timedelta(minutes=30)
+        subprocess.call(['ffmpeg', '-framerate', str(self.fps), '-pattern_type', 'glob',
+                         '-i', os.path.join(self.save_dir, '*.png'), '-c:v', 'libx264', '-r', '30',
+                         '-pix_fmt', 'yuv420p', video_filepath])
 
-        for filename in os.listdir(self.output_dir):
-            if filename.startswith("screen_recording_"):
-                file_path = os.path.join(self.output_dir, filename)
-                creation_time = datetime.fromtimestamp(os.path.getctime(file_path))
-                if creation_time < thirty_minutes_ago:
-                    os.remove(file_path)
-                    print(f"Deleted old screen recording: {file_path}")
+        print(f"Saved Video: {video_filename}")
+        self.clear_screenshots(screenshots)
+
+    def clear_screenshots(self, screenshots):
+        for screenshot in screenshots:
+            os.remove(screenshot)
+
+    @staticmethod
+    def optimal_grid(num_monitors):
+        cols = round(sqrt(num_monitors))
+        rows = ceil(num_monitors / cols)
+        return rows, cols
+
+    @staticmethod
+    def resize_images(images, max_width, max_height):
+        resized_images = []
+        for img in images:
+            img = img.resize((max_width, max_height), Image.ANTIALIAS)
+            resized_images.append(img)
+        return resized_images
+
+    @staticmethod
+    def center_images(images, total_width):
+        combined_width = sum(img.width for img in images)
+        offset = (total_width - combined_width) // 2
+        return offset
+
