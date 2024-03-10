@@ -10,7 +10,7 @@ tags:
 
 ## ✅ Proposed Solution
 - Create an open source alternative called "Time Capsule" that is self-hosted & gives users full control over their data
-- Develop the project in Python to leverage its extensive ecosystem of open source libraries
+- Develop the project in Python to leverage its extensive ecosystem of open source libraries and ensure cross-platform compatibility
 - Utilize existing open source technologies like OpenAI Whisper for speech-to-text & Tesseract OCR for text extraction
 - Provide easy deployment options for self-hosting on a user's own infrastructure / devices
 - Ensure compatibility with MacOS, Windows & Linux
@@ -28,7 +28,7 @@ tags:
 - Self-hosting to avoid dependence on cloud services & maintain data sovereignty
 - Optimized performance using FFmpeg for H.264 encoding to minimize impact on system resources & battery life
 - Encrypted storage using AES encryption with user-provided passwords for enhanced security
-- Cross-platform compatibility with MacOS, Windows & Linux
+- Cross-platform compatibility with MacOS, Windows & Linux, providing a consistent user experience and feature set
 - Modular architecture to facilitate contributions & extensibility
 - Intuitive user interface for easy navigation, search & playback of recordings
 
@@ -53,6 +53,7 @@ tags:
 
 ## 👣 Next Steps
 - Conduct a thorough evaluation of suitable open source libraries & components to leverage
+- Research and select cross-platform libraries and frameworks for screen recording, audio recording, OCR, and speech-to-text that are compatible with Python and work well on MacOS, Windows, and Linux
 - Define a clear roadmap & milestones for the project, including the minimum viable product (MVP) features
 - Set up a development environment & establish coding guidelines & best practices
 - Implement core functionality such as screen recording, audio recording, OCR & speech-to-text
@@ -60,8 +61,9 @@ tags:
 - Develop a user-friendly interface for searching, navigating & interacting with recorded data
 - Optimize performance & resource usage to ensure efficient continuous recording across platforms
 - Implement robust security measures, including encryption & secure deletion of sensitive data
-- Provide comprehensive documentation, including installation guides, user manuals & API references
+- Provide comprehensive documentation, including installation guides, user manuals & API references, with platform-specific instructions for MacOS, Windows, and Linux
 - Establish a project website & community channels for user support, feedback & engagement
 - Actively seek contributions & feedback from the open source community to drive the project forward
 - Explore potential partnerships / collaborations with other open source projects / organizations
 - Continuously iterate & improve the project based on user feedback & evolving requirements
+- Ensure thorough testing and compatibility across MacOS, Windows, and Linux throughout the development process

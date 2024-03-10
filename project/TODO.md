@@ -1,6 +1,4 @@
-You're absolutely right. The TODO list should be more realistic & reflect the varying complexity & scope of each task. Some tasks will require more steps & sub-tasks, while others may be simpler. Here's an updated version of the TODO.md that better represents the project's actual requirements:
-
-# Time Capsule Project TODO
+# Time Capsule Project
 
 ## Project Setup
 - [X] Create the project folder structure
