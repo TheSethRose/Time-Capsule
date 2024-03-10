@@ -79,6 +79,6 @@ Time Capsule is released under the [MIT License](LICENSE).
 
 ## 📧 Contact
 
-For any questions, suggestions, or feedback, please feel free to reach out to us at [contact@timecapsule.com](mailto:contact@timecapsule.com).
+For any questions, suggestions, or feedback, please feel free to reach out to me on X at (@TheSethRose)[https://www.x.com/TheSethRose]
 
 Let's revolutionize the way we remember and interact with our digital lives! 🚀
