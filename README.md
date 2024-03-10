@@ -80,6 +80,10 @@ Time Capsule is released under the [MIT License](LICENSE).
 
 ## 📧 Contact
 
-For any questions, suggestions, or feedback, please feel free to reach out to me on X at (@TheSethRose)[https://www.x.com/TheSethRose]
+For any questions, suggestions, or feedback, please feel free to reach out to me on X at [@TheSethRose](https://www.x.com/TheSethRose)
 
-Let's revolutionize the way we remember and interact with our digital lives! 🚀
+## ❤️ Support
+
+<a href="https://www.buymeacoffee.com/TheSethRose" target="_blank"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee!&emoji=&slug=TheSethRose&button_colour=000000&font_colour=ffffff&font_family=Cookie&outline_colour=ffffff&coffee_colour=FFDD00" alt="Buy Me A Coffee!"></a>
+
+
