@@ -1,6 +1,7 @@
 # Time Capsule
 
-Introducing Time Capsule - the open-source, self-hosted AI assistant that empowers you with perfect memory! 🧠💡
+Introducing Time Capsule
+The open-source, self-hosted AI assistant that empowers you with perfect memory! 🧠💡
 
 Time Capsule is a powerful tool that continuously captures and stores your digital activities, including screen recordings, audio recordings, and typed text. It enables you to search and retrieve any information you've seen, said, or heard on your device, providing you with a comprehensive digital memory.
 
