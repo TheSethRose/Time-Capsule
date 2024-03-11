@@ -16,7 +16,7 @@
   - [ ] Integrate the selected libraries into the screen recording module
   - [ ] Test the exclusion functionality on each platform
 - [X] Write tests for the `ScreenRecorder` class in `tests/test_screen_recording.py`
-- [ ] Optimize screen recording by encoding directly to H.264 video format using FFmpeg
+- [X] Optimize screen recording by encoding directly to H.264 video format using FFmpeg
   - [X] Compress screenshots directly to H.264 using FFmpeg's libx264 encoder
   - [ ] Investigate & implement hardware acceleration for video encoding on supported platforms
   - [X] Store encoded video files with timestamped filenames
@@ -60,14 +60,14 @@
   - [ ] Test & fine-tune the optimization strategy for different system configurations
 
 ## Typed Text Capturing
-- [ ] Implement the `TypedTextCapture` class in `src/typed_text/typed_text_capture.py`
-  - [ ] Use pynput library to monitor & capture typed text across applications
-  - [ ] Implement event listeners to capture key presses & store typed text in memory
+- [X] Implement the `TextCapture` class in `src/text/text_capture.py`
+  - [X] Use pynput library to monitor & capture typed text across applications
+  - [X] Implement event listeners to capture key presses & store typed text in memory
     - [ ] Handle special keys & key combinations appropriately
-    - [ ] Implement logic to handle text editing & modifications
+    - [X] Implement logic to handle text editing & modifications
   - [ ] Periodically save captured typed text to a JSON file with timestamps
   - [ ] Provide configuration options for enabling/disabling typed text capture & specifying storage interval
-- [ ] Write tests for the `TypedTextCapture` class in `tests/test_typed_text.py`
+- [ ] Write tests for the `TextCapture` class in `tests/test_text.py`
   - [ ] Develop test cases for different typing scenarios & edge cases
   - [ ] Ensure adequate test coverage for the typed text capture functionality
 

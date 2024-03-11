@@ -9,20 +9,29 @@ import subprocess
 import threading
 
 class ScreenRecorder:
-    def __init__(self, fps=1, video_duration=30):
+    system_info = None
+    
+    def __init__(self, system_info, fps=0.5, video_duration=30):
+        if ScreenRecorder.system_info is None and system_info is not None:
+            ScreenRecorder.system_info = system_info
+
         self.fps = fps
         self.video_duration = video_duration
         self.running = False
-        #self.video_dir = os.path.join(os.getcwd(), "recordings", "videos")
-        #self.save_dir = os.path.join(self.video_dir, "temp")
+
+        # self.video_dir = os.path.join(os.getcwd(), "recordings", "videos")
+        # self.save_dir = os.path.join(self.video_dir, "temp")
         self.save_dir = "/Users/sethrose/Documents/Development/Repositories/time-capsule/recordings/videos/temp/"
         self.video_dir = "/Users/sethrose/Documents/Development/Repositories/time-capsule/recordings/videos/"
-       
+
+        
     def start_recording(self):
         if not self.running:
             self.running = True
             self.recorder_thread = threading.Thread(target=self._record)
             self.recorder_thread.start()
+            print("Screen Recording Service: Started")
+
 
     def _record(self):
         with mss.mss() as sct:
@@ -36,7 +45,7 @@ class ScreenRecorder:
                 screenshots.append(screenshot)
                 screenshot_count += 1
 
-                if screenshot_count % 30 == 0:
+                if screenshot_count % 15 == 0:
                     elapsed_time = time.time() - start_time
                     if elapsed_time >= self.video_duration:
                         video_thread = threading.Thread(target=self.create_video_from_screenshots, args=(screenshots,))
@@ -45,11 +54,12 @@ class ScreenRecorder:
                         start_time = time.time()
                         screenshot_count = 0
 
-                time.sleep(0.5)
+                time.sleep(2)
 
     def stop_recording(self):
         self.running = False
         self.recorder_thread.join()
+        print("Screen Recording Service: Stopped")
 
     def capture_screenshot(self, monitors):
         with mss.mss() as sct:
@@ -90,12 +100,11 @@ class ScreenRecorder:
         video_filename = f"recording_{video_timestamp}.mp4"
         video_filepath = os.path.join(self.video_dir, video_filename)
 
-
         subprocess.call(['ffmpeg', '-framerate', str(self.fps), '-pattern_type', 'glob',
-                         '-i', os.path.join(self.save_dir, '*.png'), '-c:v', 'libx264', '-r', '30',
+                         '-i', self.save_dir + '*.png', '-c:v', 'libx264', '-r', '30',
                          '-pix_fmt', 'yuv420p', video_filepath])
-
-        print(f"Saved Video: {video_filename}")
+        
+        print(f"Video saved: {video_filename}")
         self.clear_screenshots(screenshots)
 
     def clear_screenshots(self, screenshots):
@@ -121,4 +130,3 @@ class ScreenRecorder:
         combined_width = sum(img.width for img in images)
         offset = (total_width - combined_width) // 2
         return offset
-
