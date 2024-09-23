@@ -1,0 +1,8 @@
+numpy
+pyaudio
+faster-whisper
+torch
+torchaudio
+soundfile
+librosa
+python-dotenv
