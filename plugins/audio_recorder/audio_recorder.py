@@ -1,4 +1,4 @@
-# modules/audio_recorder.py
+# plugins/audio_recorder/audio_recorder.py
 
 import pyaudio
 import numpy as np

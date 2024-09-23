@@ -3,9 +3,9 @@
 import time
 import queue
 import logging
-from modules.audio_recorder import AudioRecorder
-from modules.transcription_service import TranscriptionService
 from modules.database_manager import DatabaseManager
+from plugins.audio_recorder.audio_recorder import AudioRecorder
+from plugins.transcription_service.transcription_service import TranscriptionService
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 

@@ -1,10 +1,10 @@
 # Time Capsule
 
-Time Capsule is a powerful tool designed to continuously capture and store your digital activities, creating a comprehensive digital memory. Currently, it focuses on audio capture and transcription, with plans to expand to other forms of digital activity logging and advanced memory recall features.
+Time Capsule is a powerful tool designed to continuously capture and store your digital activities, creating a comprehensive digital memory. It provides a core system for data management with plans to expand to a web interface for interaction and optional plugins for various data capture methods.
 
 ## 🚧 Work in Progress 🚧
 
-**DISCLAIMER: Time Capsule is currently under heavy construction. Many features mentioned in this README are planned but not yet implemented. The current version focuses primarily on audio capture and transcription.**
+**DISCLAIMER: Time Capsule is currently under heavy construction. Many features mentioned in this README are planned but not yet implemented.**
 
 ## ✨ Current Features
 
@@ -15,14 +15,7 @@ Time Capsule is a powerful tool designed to continuously capture and store your 
 
 ## 🚀 Future Features
 
-- 🖥️ Screen recording and transcription
-- 📁 Folder monitoring for important documents
-- 🌐 Web interface for database management
-- 🤖 LLM integration for natural language interaction with your digital memory
-- 🧠 Advanced memory recall capabilities, allowing users to query their digital history
-- 📊 Data visualization and timeline view
-
-For a detailed list of current and planned features, please see our [TODO list](TODO.md).
+For a detailed list of planned features, please see our [TODO list](TODO.md).
 
 ## 🛠️ Installation
 
@@ -50,24 +43,13 @@ For a detailed list of current and planned features, please see our [TODO list](
 
 ## 🖥️ Usage
 
-Start capturing audio:
+Start the Time Capsule application:
 
 ```bash
 python main.py
 ```
 
 Press `Ctrl+C` to stop the application.
-
-## 📝 Planned Functionality
-
-Future versions of Time Capsule aim to provide a seamless interface for interacting with your digital memory. Example queries:
-
-- "What did we agree upon in that meeting last Thursday?"
-- "When is my doctor's appointment?"
-- "How much was my electricity bill?"
-- "What was the last message I sent to my partner?"
-
-These features will leverage Chroma vector database and large language models to provide accurate, context-aware responses based on your captured digital activities.
 
 ## 🤝 Contributing
 
