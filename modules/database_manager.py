@@ -4,18 +4,23 @@ import sqlite3
 from sqlite3 import Error
 from config.config import DATABASE_PATH
 import logging
+import os
 
 class DatabaseManager:
     def __init__(self):
         self.db_file = DATABASE_PATH
         self.conn = self.create_connection()
-        self.create_tables()
+        if self.conn:
+            self.create_tables()
 
     def create_connection(self):
         """Create a database connection to the SQLite database."""
         try:
+            # Ensure the directory exists
+            os.makedirs(os.path.dirname(self.db_file), exist_ok=True)
+
             conn = sqlite3.connect(self.db_file, check_same_thread=False)
-            print("Database connected successfully.")
+            print(f"Database connected successfully at {self.db_file}")
             return conn
         except Error as e:
             print(f"Error connecting to database: {e}")
