@@ -15,9 +15,12 @@ Time Capsule is a powerful tool designed to continuously capture and store your 
 
 ## 🚀 Future Features
 
+- 🖥️ Screen recording and transcription
+- 📁 Folder monitoring for important documents
+- 🌐 Web interface for database management
 - 🤖 LLM integration for natural language interaction with your digital memory
 - 🧠 Advanced memory recall capabilities, allowing users to query their digital history
-- 📊 Expanded data capture (screen recordings, typed text, etc.)
+- 📊 Data visualization and timeline view
 
 For a detailed list of current and planned features, please see our [TODO list](TODO.md).
 
