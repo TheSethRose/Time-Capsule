@@ -2,6 +2,10 @@
 
 Time Capsule is a powerful tool designed to continuously capture and store your digital activities, creating a comprehensive digital memory. Currently, it focuses on audio capture and transcription, with plans to expand to other forms of digital activity logging and advanced memory recall features.
 
+## 🚧 Work in Progress 🚧
+
+**DISCLAIMER: Time Capsule is currently under heavy construction. Many features mentioned in this README are planned but not yet implemented. The current version focuses primarily on audio capture and transcription.**
+
 ## ✨ Current Features
 
 - 🎙️ Real-time microphone recording
