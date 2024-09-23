@@ -112,3 +112,6 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Chroma database
+data/chroma_db/
