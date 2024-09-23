@@ -3,7 +3,7 @@
 import os
 
 # Database configuration
-DATABASE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'user_data.db')
+DATABASE_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'chroma_db')
 
 # Whisper model configuration
 WHISPER_MODEL_NAME = "base"

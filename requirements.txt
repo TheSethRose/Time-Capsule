@@ -48,3 +48,4 @@ torchaudio==2.4.1
 tqdm==4.66.5
 typing_extensions==4.12.2
 urllib3==2.2.3
+chromadb

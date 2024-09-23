@@ -11,11 +11,10 @@ Time Capsule is a powerful tool designed to continuously capture and store your 
 - 🎙️ Real-time microphone recording
 - 🗣️ Speech-to-text transcription using Fast-Whisper library
 - ⚙️ Configurable language and confidence settings (`config/config.py`)
-- 💾 Database storage of transcribed text (SQLite, to be replaced with Vector Database)
+- 💾 Database storage of transcribed text using Chroma vector database
 
 ## 🚀 Future Features
 
-- 🔗 Integration with a vector database for efficient storage and retrieval of information
 - 🤖 LLM integration for natural language interaction with your digital memory
 - 🧠 Advanced memory recall capabilities, allowing users to query their digital history
 - 📊 Expanded data capture (screen recordings, typed text, etc.)
@@ -63,31 +62,33 @@ Future versions of Time Capsule aim to provide a seamless interface for interact
 - "How much was my electricity bill?"
 - "What was the last message I sent to my partner?"
 
-These features will leverage vector databases and large language models to provide accurate, context-aware responses based on your captured digital activities.
+These features will leverage Chroma vector database and large language models to provide accurate, context-aware responses based on your captured digital activities.
 
 ## 📋 TODO List
 
-- [x] Add microphone recording functionality
-- [x] Implement Fast-Whisper model for audio transcription
-- [ ] Implement screen recording functionality
-- [ ] Add transcription service for screen recording
-- [ ] Add typed text capture
-- [ ] Develop user interface for interaction and search
-- [ ] Implement data encryption for privacy
-- [ ] Add support for multiple audio input sources
-- [ ] Create plugin system for extensibility
-- [ ] Implement sophisticated search functionality
-- [ ] Add data visualization features
-- [ ] Develop mobile app version
-- [ ] Implement cloud sync capabilities
-- [ ] Add support for video capture and transcription
-- [ ] Implement activity categorization and tagging
-- [ ] Add export functionality for captured data
-- [ ] Implement timeline view of captured activities
-- [ ] Add voice command support for application control
-- [ ] Integrate vector database for efficient information storage/retrieval
-- [ ] Implement LLM for natural language interaction with digital memory
-- [ ] Develop advanced memory recall capabilities
+| Status | Task | Notes |
+|--------|------|-------|
+| ✅ | Add microphone recording functionality | Implemented in `modules/audio_recorder.py` |
+| ✅ | Implement Fast-Whisper model for audio transcription | Implemented in `modules/transcription_service.py` |
+| ✅ | Integrate Chroma vector database for efficient information storage/retrieval | Implemented in `modules/database_manager.py` |
+| ⬜ | Implement screen recording functionality | Create new module `modules/screen_recorder.py` |
+| ⬜ | Add transcription service for screen recording | Update `modules/transcription_service.py` |
+| ⬜ | Add typed text capture | Create new module `modules/text_capture.py` |
+| ⬜ | Develop user interface for interaction and search | Create new directory `ui/` with relevant files |
+| ⬜ | Implement data encryption for privacy | Update `modules/database_manager.py` and add encryption utilities |
+| ⬜ | Add support for multiple audio input sources | Update `modules/audio_recorder.py` |
+| ⬜ | Create plugin system for extensibility | Create new directory `plugins/` and update `main.py` |
+| ⬜ | Implement sophisticated search functionality | Update `modules/database_manager.py` and potentially create `modules/search_engine.py` |
+| ⬜ | Add data visualization features | Create new module `modules/data_visualizer.py` |
+| ⬜ | Develop mobile app version | Create new repository for mobile app |
+| ⬜ | Implement cloud sync capabilities | Create new module `modules/cloud_sync.py` |
+| ⬜ | Add support for video capture and transcription | Create new module `modules/video_capture.py` and update `modules/transcription_service.py` |
+| ⬜ | Implement activity categorization and tagging | Update `modules/database_manager.py` and potentially create `modules/activity_classifier.py` |
+| ⬜ | Add export functionality for captured data | Create new module `modules/data_exporter.py` |
+| ⬜ | Implement timeline view of captured activities | Create new module `modules/timeline_generator.py` |
+| ⬜ | Add voice command support for application control | Create new module `modules/voice_commands.py` |
+| ⬜ | Implement LLM for natural language interaction with digital memory | Create new module `modules/llm_interface.py` |
+| ⬜ | Develop advanced memory recall capabilities | Update `modules/database_manager.py` and create `modules/memory_recall.py` |
 
 ## 🤝 Contributing
 
