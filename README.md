@@ -2,16 +2,14 @@
 
 Time Capsule is a powerful tool designed to continuously capture and store your digital activities, creating a comprehensive digital memory. It provides a core system for data management with plans to expand to a web interface for interaction and optional plugins for various data capture methods.
 
-## 🚧 Work in Progress 🚧
-
-**DISCLAIMER: Time Capsule is currently under heavy construction. Many features mentioned in this README are planned but not yet implemented.**
-
 ## ✨ Current Features
 
 - 🎙️ Real-time microphone recording
 - 🗣️ Speech-to-text transcription using Fast-Whisper library
-- ⚙️ Configurable language and confidence settings (`config/config.py`)
 - 💾 Database storage of transcribed text using Chroma vector database
+- 🔌 Plugin system for extensibility
+- ⚙️ Configurable settings via JSON configuration file
+- 🖥️ Interactive CLI menu for managing plugins and starting the application
 
 ## 🚀 Future Features
 
@@ -39,15 +37,17 @@ For a detailed list of planned features, please see our [TODO list](TODO.md).
    pip install -r requirements.txt
    ```
 
-4. Configure settings in `config/config.py` according to your preferences.
+4. Configure settings in `config/config.json` according to your preferences.
 
 ## 🖥️ Usage
 
-Start the Time Capsule application:
+Start Time Capsule application:
 
 ```bash
 python main.py
 ```
+
+Use the interactive menu to manage plugins and start Time Capsule.
 
 Press `Ctrl+C` to stop the application.
 

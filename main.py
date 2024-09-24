@@ -3,10 +3,9 @@
 import time
 import queue
 import logging
-import sys
 import os
 from modules.database_manager import DatabaseManager
-from modules.plugin_manager import TimeCapsuleApplication, PluginManager
+from modules.plugin_manager import TimeCapsuleApplication
 from config.config import config
 
 logging.basicConfig(filename='time_capsule.log', level=logging.INFO,

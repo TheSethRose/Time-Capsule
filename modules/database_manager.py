@@ -1,7 +1,6 @@
 # modules/database_manager.py
 
 import chromadb
-import logging
 from chromadb.config import Settings
 from config.config import config
 
