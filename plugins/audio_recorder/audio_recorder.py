@@ -4,10 +4,11 @@ import pyaudio
 import numpy as np
 import threading
 import logging
-from config.config import config
+from modules.config_manager import config
 from .transcription_service import TranscriptionService
 
 class AudioRecorder:
+    """Class for recording audio and managing the transcription service."""
     def __init__(self):
         self.audio_queue = None
         self.sample_rate = config.get_audio_sample_rate()
@@ -19,6 +20,7 @@ class AudioRecorder:
         self.transcription_service = TranscriptionService()
 
     def start(self, audio_queue, db_manager):
+        """Start the audio recorder and transcription service."""
         logging.debug("Starting AudioRecorder")
         self.audio_queue = audio_queue
         self.running = True
@@ -28,6 +30,7 @@ class AudioRecorder:
         logging.debug("AudioRecorder started")
 
     def stop(self):
+        """Stop the audio recorder and transcription service."""
         logging.debug("Stopping AudioRecorder")
         self.running = False
         if hasattr(self, 'thread'):
@@ -37,6 +40,7 @@ class AudioRecorder:
         logging.debug("AudioRecorder stopped")
 
     def _close_stream(self):
+        """Close the audio stream and terminate PyAudio."""
         if self.stream:
             self.stream.stop_stream()
             self.stream.close()
@@ -44,6 +48,7 @@ class AudioRecorder:
             self.p.terminate()
 
     def record(self):
+        """Record audio and put chunks into the queue."""
         logging.debug("Starting audio recording")
         self.p = pyaudio.PyAudio()
         try:
@@ -68,6 +73,7 @@ class AudioRecorder:
             self.running = False
 
     def _audio_callback(self, in_data, frame_count, time_info, status):
+        """Callback function for processing audio stream data."""
         if status:
             logging.warning(f"PyAudio callback status: {status}")
 
@@ -82,4 +88,5 @@ class AudioRecorder:
         return (in_data, pyaudio.paContinue)
 
     def is_running(self):
+        """Check if the audio recorder and transcription service are running."""
         return self.running and self.transcription_service.is_running()

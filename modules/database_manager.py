@@ -2,10 +2,12 @@
 
 import chromadb
 from chromadb.config import Settings
-from config.config import config
+from modules.config_manager import config
 
 class DatabaseManager:
+    """Manager for handling database operations."""
     def __init__(self, database_path=None):
+        # Initialize the ChromaDB client with the specified database path
         self.client = chromadb.PersistentClient(
             path=database_path or config.get_database_path(),
             settings=Settings(
@@ -13,9 +15,11 @@ class DatabaseManager:
                 anonymized_telemetry=False
             )
         )
+        # Get or create the collection for storing transcriptions
         self.collection = self.client.get_or_create_collection("transcriptions")
 
     def store_transcription(self, text, language, confidence):
+        """Store a transcription in the database."""
         self.collection.add(
             documents=[text],
             metadatas=[{"language": language, "confidence": confidence}],

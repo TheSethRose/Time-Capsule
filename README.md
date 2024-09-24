@@ -10,6 +10,7 @@ Time Capsule is a powerful tool designed to continuously capture and store your 
 - 🔌 Plugin system for extensibility
 - ⚙️ Configurable settings via JSON configuration file
 - 🖥️ Interactive CLI menu for managing plugins and starting the application
+- 📊 Transcription service for processing audio recordings
 
 ## 🚀 Future Features
 

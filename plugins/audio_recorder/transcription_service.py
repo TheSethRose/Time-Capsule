@@ -1,6 +1,6 @@
 import threading
 from faster_whisper import WhisperModel
-from config.config import config
+from modules.config_manager import config
 import logging
 import numpy as np
 import queue
@@ -13,6 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logging.getLogger("faster_whisper").setLevel(logging.WARNING)
 
 class TranscriptionService:
+    """Service for transcribing audio using the Whisper model."""
     def __init__(self):
         self.audio_queue = None
         self.db_manager = None
@@ -21,6 +22,7 @@ class TranscriptionService:
         self.thread = None
 
     def start(self, audio_queue, db_manager):
+        """Start the transcription service."""
         self.audio_queue = audio_queue
         self.db_manager = db_manager
         model_name = config.get_whisper_model_name()
@@ -38,15 +40,19 @@ class TranscriptionService:
         self.thread.start()
 
     def _transcribe(self):
+        """Internal method to handle the transcription process."""
         try:
             while self.running:
                 try:
+                    # Get audio chunk from the queue
                     audio_chunk = self.audio_queue.get(timeout=1)
                     if audio_chunk.dtype != np.float32:
                         audio_chunk = audio_chunk.astype(np.float32)
 
+                    # Transcribe the audio chunk
                     segments, info = self.model.transcribe(audio_chunk, beam_size=5)
 
+                    # Check if the transcription meets the confidence and language criteria
                     if info.language in self.allowed_languages and info.language_probability >= self.min_confidence:
                         transcription = " ".join(segment.text for segment in segments).strip()
                         if transcription:  # Only process non-empty transcriptions
@@ -60,9 +66,11 @@ class TranscriptionService:
             logging.error(f"Error during transcription: {str(e)}", exc_info=True)
 
     def stop(self):
+        """Stop the transcription service."""
         self.running = False
         if self.thread:
             self.thread.join(timeout=5)
 
     def is_running(self):
+        """Check if the transcription service is running."""
         return self.running
