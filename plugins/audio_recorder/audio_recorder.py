@@ -4,35 +4,39 @@ import pyaudio
 import numpy as np
 import threading
 import logging
-from config.config import SAMPLE_RATE, CHUNK_SIZE
+from config.config import config
+from .transcription_service import TranscriptionService
 
 class AudioRecorder:
-    def __init__(self, audio_queue):
-        self.audio_queue = audio_queue
-        self.sample_rate = SAMPLE_RATE
-        self.chunk_size = CHUNK_SIZE
+    def __init__(self):
+        self.audio_queue = None
+        self.sample_rate = config.get_audio_sample_rate()
+        self.chunk_size = config.get_audio_chunk_size()
         self.running = False
         self.p = None
         self.stream = None
         self.buffer = np.array([], dtype=np.float32)
+        self.transcription_service = TranscriptionService()
 
-    def start_recording(self):
-        """Start the audio recording in a separate thread."""
+    def start(self, audio_queue, db_manager):
+        logging.debug("Starting AudioRecorder")
+        self.audio_queue = audio_queue
         self.running = True
         self.thread = threading.Thread(target=self.record)
         self.thread.start()
-        logging.info("Audio recording started.")
+        self.transcription_service.start(audio_queue, db_manager)
+        logging.debug("AudioRecorder started")
 
-    def stop_recording(self):
-        """Stop the audio recording."""
+    def stop(self):
+        logging.debug("Stopping AudioRecorder")
         self.running = False
         if hasattr(self, 'thread'):
             self.thread.join()
         self._close_stream()
-        logging.info("Audio recording stopped.")
+        self.transcription_service.stop()
+        logging.debug("AudioRecorder stopped")
 
     def _close_stream(self):
-        """Close the PyAudio stream and terminate PyAudio."""
         if self.stream:
             self.stream.stop_stream()
             self.stream.close()
@@ -40,7 +44,7 @@ class AudioRecorder:
             self.p.terminate()
 
     def record(self):
-        """Continuously record audio and put audio data into the queue."""
+        logging.debug("Starting audio recording")
         self.p = pyaudio.PyAudio()
         try:
             self.stream = self.p.open(format=pyaudio.paFloat32,
@@ -58,7 +62,7 @@ class AudioRecorder:
                 threading.Event().wait(0.1)  # Sleep to reduce CPU usage
 
         except Exception as e:
-            logging.error(f"Error recording audio: {e}", exc_info=True)
+            logging.error(f"Error in audio recording: {str(e)}", exc_info=True)
         finally:
             self._close_stream()
             self.running = False
@@ -76,3 +80,6 @@ class AudioRecorder:
             self.buffer = self.buffer[self.sample_rate * 3:]
 
         return (in_data, pyaudio.paContinue)
+
+    def is_running(self):
+        return self.running and self.transcription_service.is_running()

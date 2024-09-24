@@ -1,0 +1,35 @@
+{
+  "plugins_comment": "Enable or disable specific plugins",
+  "plugins": {
+    "AudioRecorder": true
+  },
+  "database_comment": "Database configuration",
+  "database": {
+    "path_comment": "Path to the Chroma database directory",
+    "path": "data/chroma_db"
+  },
+  "audio_recorder_comment": "Audio recording and transcription configuration",
+  "audio_recorder": {
+    "audio_comment": "Audio recording configuration",
+    "audio": {
+      "sample_rate_comment": "Audio sample rate in Hz",
+      "sample_rate": 16000,
+      "chunk_size_comment": "Number of audio frames per buffer",
+      "chunk_size": 1024
+    },
+    "transcription_comment": "Transcription service configuration",
+    "transcription": {
+      "whisper_model_comment": "Name of the Whisper model to use (e.g., 'base', 'small', 'medium', 'large')",
+      "whisper_model": "base",
+      "allowed_languages_comment": "List of allowed language codes for transcription",
+      "allowed_languages": ["en"],
+      "min_confidence_comment": "Minimum confidence score to accept a transcription (0.0 to 1.0)",
+      "min_confidence": 0.5
+    }
+  },
+  "user_comment": "User-related configuration",
+  "user": {
+    "default_user_id_comment": "Default user ID for the application",
+    "default_user_id": 1
+  }
+}

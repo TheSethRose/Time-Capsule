@@ -115,3 +115,6 @@ Thumbs.db
 
 # Chroma database
 data/chroma_db/
+
+# Time Capsule log file
+time_capsule.log
