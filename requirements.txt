@@ -28,7 +28,7 @@ onnxruntime==1.19.2
 packaging==24.1
 platformdirs==4.3.6
 pooch==1.8.2
-protobuf==5.28.2
+protobuf==3.20.3
 PyAudio==0.2.14
 pycparser==2.22
 pydub==0.25.1
@@ -49,3 +49,6 @@ tqdm==4.66.5
 typing_extensions==4.12.2
 urllib3==2.2.3
 chromadb
+flask
+faster-whisper
+psutil==5.9.5

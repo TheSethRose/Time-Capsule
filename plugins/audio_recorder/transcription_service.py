@@ -5,6 +5,7 @@ import logging
 import numpy as np
 import queue
 import time
+import os
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -21,18 +22,26 @@ class TranscriptionService:
         self.running = False
         self.thread = None
 
-    def start(self, audio_queue, db_manager):
-        """Start the transcription service."""
-        self.audio_queue = audio_queue
-        self.db_manager = db_manager
-        model_name = config.get_whisper_model_name()
-        logging.info(f"Loading Whisper model: {model_name}")
+    def initialize_model(self, model_name, model_path):
+        """Initialize the Whisper model."""
         try:
-            self.model = WhisperModel(model_name, device="cpu", compute_type="int8")
+            model_files = [f for f in os.listdir(model_path) if f.startswith(model_name)]
+            if not model_files:
+                logging.info(f"Downloading Whisper model '{model_name}'...")
+
+            self.model = WhisperModel(model_name, device="cpu", compute_type="int8", download_root=model_path)
             logging.info("Whisper model loaded successfully")
         except Exception as e:
             logging.error(f"Error loading Whisper model: {str(e)}")
             raise
+
+    def start(self, audio_queue, db_manager):
+        """Start the transcription service."""
+        if self.model is None:
+            raise RuntimeError("Whisper model not initialized. Call initialize_model first.")
+
+        self.audio_queue = audio_queue
+        self.db_manager = db_manager
         self.allowed_languages = config.get_allowed_languages()
         self.min_confidence = config.get_min_transcription_confidence()
         self.running = True

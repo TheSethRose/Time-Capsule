@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Capsule</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='globals.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="min-h-screen p-4 md:p-8 bg-background text-foreground">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-foreground">Time Capsule</h1>
+            <button id="themeToggle" class="btn btn-outline rounded-full p-2">
+                <i data-lucide="sun" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+            <div class="card p-6 bg-card text-card-foreground">
+                <h2 class="text-xl font-semibold mb-4 flex items-center text-card-foreground">
+                    <i data-lucide="server" class="w-5 h-5 mr-2"></i>Time Capsule Control
+                </h2>
+                <div class="flex space-x-2 mb-4">
+                    <button id="toggleService" class="btn btn-primary flex-grow flex items-center justify-center border">
+                        <i data-lucide="play" class="w-5 h-5 mr-2"></i> Start Time Capsule
+                    </button>
+                    <button id="stopServer" class="btn btn-danger flex items-center justify-center border">
+                        <i data-lucide="power" class="w-5 h-5 mr-2"></i> Stop Server
+                    </button>
+                </div>
+                <div class="progress mb-2 bg-secondary">
+                    <div id="serverProgress" class="progress-bar bg-primary" style="width: 0%"></div>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span id="timeCapsuleStatus" class="px-2 py-1 rounded bg-secondary text-secondary-foreground">Status: Stopped</span>
+                    <span id="serverUptime" class="px-2 py-1 rounded bg-secondary text-secondary-foreground">Uptime: 00:00:00</span>
+                </div>
+            </div>
+
+            <div class="card p-6 bg-card text-card-foreground">
+                <h2 class="text-xl font-semibold mb-4 flex items-center text-card-foreground">
+                    <i data-lucide="bar-chart-2" class="w-5 h-5 mr-2"></i>System Stats
+                </h2>
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        <label class="text-sm font-medium text-card-foreground w-32">CPU Usage:</label>
+                        <div class="flex-grow flex items-center">
+                            <div class="progress flex-grow mr-2 bg-secondary">
+                                <div id="cpuUsage" class="progress-bar bg-primary" style="width: 0%"></div>
+                            </div>
+                            <span id="cpuUsageText" class="text-sm w-12 text-right text-card-foreground">0%</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <label class="text-sm font-medium text-card-foreground w-32">Memory Usage:</label>
+                        <div class="flex-grow flex items-center">
+                            <div class="progress flex-grow mr-2 bg-secondary">
+                                <div id="memoryUsage" class="progress-bar bg-primary" style="width: 0%"></div>
+                            </div>
+                            <span id="memoryUsageText" class="text-sm w-12 text-right text-card-foreground">0%</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <label class="text-sm font-medium text-card-foreground w-32">Disk Usage:</label>
+                        <div class="flex-grow flex items-center">
+                            <div class="progress flex-grow mr-2 bg-secondary">
+                                <div id="diskUsage" class="progress-bar bg-primary" style="width: 0%"></div>
+                            </div>
+                            <span id="diskUsageText" class="text-sm w-12 text-right text-card-foreground">0%</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <label class="text-sm font-medium text-card-foreground w-32">Database Size:</label>
+                        <div class="flex-grow flex items-center">
+                            <div class="progress flex-grow mr-2 bg-secondary">
+                                <div id="databaseSize" class="progress-bar bg-primary" style="width: 0%"></div>
+                            </div>
+                            <span id="databaseSizeText" class="text-sm w-16 text-right text-card-foreground">0 GB</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-sm text-muted-foreground mt-4">Refreshes every <span id="refreshInterval" data-interval="{{ refresh_interval }}">{{ refresh_interval }}</span> seconds</p>
+            </div>
+
+            <div class="card p-6 bg-card text-card-foreground">
+                <h2 class="text-xl font-semibold mb-4 flex items-center text-card-foreground">
+                    <i data-lucide="puzzle" class="w-5 h-5 mr-2"></i>Plugin Management
+                </h2>
+                <div id="pluginList" class="space-y-2">
+                    {% if plugins %}
+                        {% for plugin, enabled in plugins.items() %}
+                        <div class="flex items-center">
+                            <input type="checkbox" id="{{ plugin }}" class="form-checkbox h-5 w-5 text-primary bg-input border-input" {% if enabled %}checked{% endif %}
+                                   hx-post="/toggle_plugin/{{ plugin }}"
+                                   hx-trigger="change"
+                                   hx-swap="none">
+                            <label for="{{ plugin }}" class="ml-2 flex items-center text-card-foreground">
+                                {{ plugin }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted-foreground">No plugins available.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card p-6 bg-card text-card-foreground">
+                <h2 class="text-xl font-semibold mb-4 flex items-center text-card-foreground">
+                    <i data-lucide="settings" class="w-5 h-5 mr-2"></i>Application Settings
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="port" class="block text-sm font-medium mb-1 text-card-foreground">Server Port</label>
+                        <input type="number" id="port" value="5000" class="w-full px-3 py-2 bg-input text-input-foreground border border-input rounded-md" readonly>
+                    </div>
+                    <div>
+                        <label for="dataDirectory" class="block text-sm font-medium mb-1 text-card-foreground">Data Directory</label>
+                        <input type="text" id="dataDirectory" value="{{ database_path }}" class="w-full px-3 py-2 bg-input text-input-foreground border border-input rounded-md" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-6 bg-card text-card-foreground col-span-2">
+                <h2 class="text-xl font-semibold mb-4 flex items-center text-card-foreground">
+                    <i data-lucide="file-text" class="w-5 h-5 mr-2"></i>Debug Log
+                </h2>
+                <textarea id="debugLog" class="w-full h-64 p-2 bg-input text-input-foreground border border-input rounded-md font-mono text-sm" readonly>{{ debug_log }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('themeToggle');
+            const html = document.documentElement;
+
+            // Function to set the theme
+            function setTheme(theme) {
+                html.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                themeToggle.innerHTML = theme === 'dark'
+                    ? '<i data-lucide="sun" class="w-5 h-5"></i>'
+                    : '<i data-lucide="moon" class="w-5 h-5"></i>';
+                lucide.createIcons();
+            }
+
+            // Set initial theme to dark
+            setTheme('dark');
+
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                setTheme(newTheme);
+            });
+
+            const toggleService = document.getElementById('toggleService');
+            toggleService.addEventListener('click', function() {
+                const action = toggleService.textContent.includes('Start') ? 'start' : 'stop';
+                fetch(`/${action}_time_capsule`, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            toggleService.innerHTML = action === 'start' ?
+                                '<i data-lucide="stop-circle"></i> Stop Time Capsule' :
+                                '<i data-lucide="play"></i> Start Time Capsule';
+                            document.getElementById('timeCapsuleStatus').textContent = `Status: ${action === 'start' ? 'Running' : 'Stopped'}`;
+                            document.getElementById('timeCapsuleStatus').className = `px-2 py-1 rounded ${action === 'start' ? 'bg-success text-success-foreground' : 'bg-secondary text-secondary-foreground'}`;
+                            lucide.createIcons();
+                        }
+                    });
+            });
+
+            const stopServer = document.getElementById('stopServer');
+            stopServer.addEventListener('click', function() {
+                if (confirm('Are you sure you want to stop the server? This will close the application.')) {
+                    fetch('/stop_server', { method: 'POST' })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Server is shutting down. You can close this window.');
+                            } else {
+                                alert('Failed to stop the server. Please check the logs.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while trying to stop the server.');
+                        });
+                }
+            });
+
+            // Get the refresh interval
+            const refreshIntervalElement = document.getElementById('refreshInterval');
+            const refreshInterval = parseInt(refreshIntervalElement.dataset.interval, 10) || 5; // Default to 5 if parsing fails
+            refreshIntervalElement.textContent = refreshInterval;
+
+            function updateStatus() {
+                fetch('/status')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('timeCapsuleStatus').textContent = `Status: ${data.time_capsule_running ? 'Running' : 'Stopped'}`;
+                        document.getElementById('timeCapsuleStatus').className = `px-2 py-1 rounded ${data.time_capsule_running ? 'bg-success text-success-foreground' : 'bg-secondary text-secondary-foreground'}`;
+
+                        updateSystemStat('cpuUsage', data.cpu_usage);
+                        updateSystemStat('memoryUsage', data.memory_usage);
+                        updateSystemStat('diskUsage', data.disk_usage);
+
+                        const dbSize = parseFloat(data.total_storage);
+                        const dbSizePercentage = Math.min((dbSize / 100) * 100, 100); // Assuming 100GB max
+                        updateSystemStat('databaseSize', dbSizePercentage, `${dbSize.toFixed(2)} GB`);
+
+                        // Update plugin statuses
+                        for (const [plugin, status] of Object.entries(data.plugins)) {
+                            const checkbox = document.getElementById(plugin);
+                            if (checkbox) {
+                                checkbox.checked = status.enabled;
+                            }
+                        }
+
+                        // Update debug log
+                        const debugLogElement = document.getElementById('debugLog');
+                        if (data.debug_log && data.debug_log !== debugLogElement.value) {
+                            debugLogElement.value = data.debug_log;
+                            debugLogElement.scrollTop = debugLogElement.scrollHeight;
+                        }
+
+                        // Update uptime
+                        document.getElementById('serverUptime').textContent = `Uptime: ${formatUptime(data.uptime)}`;
+                    });
+            }
+
+            function formatUptime(seconds) {
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            function updateSystemStat(id, value, text) {
+                const element = document.getElementById(id);
+                const textElement = document.getElementById(`${id}Text`);
+                if (element) {
+                    element.style.width = `${value}%`;
+                }
+                if (textElement) {
+                    textElement.textContent = text || `${value}%`;
+                }
+            }
+
+            // Initial update
+            updateStatus();
+
+            // Set up interval for updates
+            setInterval(updateStatus, refreshInterval * 1000);
+        });
+    </script>
+</body>
+</html>

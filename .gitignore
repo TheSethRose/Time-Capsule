@@ -122,3 +122,6 @@ time_capsule.log
 # Cursor instructions and rules
 cursor-instructions/
 .cursorrules
+
+# Whisper model directory
+plugins/audio_recorder/model/

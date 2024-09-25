@@ -4,13 +4,15 @@ import pyaudio
 import numpy as np
 import threading
 import logging
+import os
+import queue
 from modules.config_manager import config
 from .transcription_service import TranscriptionService
 
 class AudioRecorder:
     """Class for recording audio and managing the transcription service."""
     def __init__(self):
-        self.audio_queue = None
+        self.audio_queue = queue.Queue()
         self.sample_rate = config.get_audio_sample_rate()
         self.chunk_size = config.get_audio_chunk_size()
         self.running = False
@@ -18,16 +20,28 @@ class AudioRecorder:
         self.stream = None
         self.buffer = np.array([], dtype=np.float32)
         self.transcription_service = TranscriptionService()
+        self.model_path = os.path.join(os.path.dirname(__file__), 'model')
 
-    def start(self, audio_queue, db_manager):
+    def start(self, db_manager):
         """Start the audio recorder and transcription service."""
         logging.debug("Starting AudioRecorder")
-        self.audio_queue = audio_queue
         self.running = True
+
+        # Ensure the model is initialized before starting
+        self._initialize_model()
+
         self.thread = threading.Thread(target=self.record)
         self.thread.start()
-        self.transcription_service.start(audio_queue, db_manager)
+        self.transcription_service.start(self.audio_queue, db_manager)
         logging.debug("AudioRecorder started")
+
+    def _initialize_model(self):
+        model_name = config.get_whisper_model_name()
+        if not os.path.exists(self.model_path):
+            os.makedirs(self.model_path)
+            logging.info(f"Created model directory: {self.model_path}")
+
+        self.transcription_service.initialize_model(model_name, self.model_path)
 
     def stop(self):
         """Stop the audio recorder and transcription service."""

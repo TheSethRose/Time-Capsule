@@ -1,89 +1,115 @@
 # main.py
 
-import time
-import queue
 import logging
+from flask import Flask
+from time_capsule import TimeCapsule
+from modules.web_server import configure_routes
+import atexit
+import signal
+import sys
+import socket
+from werkzeug.serving import make_server
+import threading
 import os
-from modules.database_manager import DatabaseManager
-from modules.plugin_manager import TimeCapsuleApplication
-from modules.config_manager import config
+import time
 
-# Configure logging to write to a file with a specific format
-logging.basicConfig(filename='time_capsule.log', level=logging.WARNING,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+DEBUG_LOG = "time_capsule_debug.log"
 
-def clear_screen():
-    """Clear the terminal screen."""
-    os.system('cls' if os.name == 'nt' else 'clear')
-
-def start_time_capsule(plugin_manager):
-    """Start the Time Capsule application with the given plugin manager."""
+def clear_debug_log():
+    """Clear the contents of the debug log file."""
     try:
-        clear_screen()  # Clear the screen before starting Time Capsule
-        logging.info("Starting Time Capsule")
-
-        # Initialize the database manager and audio queue
-        db_manager = DatabaseManager(config.get_database_path())
-        audio_q = queue.Queue()
-
-        # Get the list of enabled plugins
-        enabled_plugins = plugin_manager.get_enabled_plugins()
-        logging.info(f"Enabled plugins: {list(enabled_plugins.keys())}")
-
-        # Start each enabled plugin
-        for plugin_name, plugin_instance in enabled_plugins.items():
-            logging.info(f"Starting plugin: {plugin_name}")
-            try:
-                plugin_instance.start(audio_queue=audio_q, db_manager=db_manager)
-                logging.info(f"Plugin {plugin_name} started successfully")
-            except Exception as e:
-                logging.error(f"Error starting plugin {plugin_name}: {str(e)}", exc_info=True)
-                raise
-
-        print("Time Capsule started. Press Ctrl+C to stop.")
-        logging.info("Time Capsule started. Press Ctrl+C to stop.")
-
-        # Main loop to keep the application running
-        while True:
-            time.sleep(1)
-            running_plugins = [name for name, plugin in enabled_plugins.items() if plugin.is_running()]
-            logging.info(f"Currently running plugins: {running_plugins}")
-            if not all(plugin.is_running() for plugin in enabled_plugins.values()):
-                raise Exception("One or more plugins stopped unexpectedly.")
-
-    except KeyboardInterrupt:
-        # Handle user interrupt (Ctrl+C)
-        print("Stopping Time Capsule...")
-        logging.info("Stopping Time Capsule...")
+        open(DEBUG_LOG, 'w').close()
     except Exception as e:
-        # Handle other exceptions
-        print(f"An error occurred: {e}")
-        logging.error(f"An error occurred: {e}", exc_info=True)
-    finally:
-        # Ensure all plugins are stopped properly
-        if 'enabled_plugins' in locals():
-            for plugin_name, plugin in enabled_plugins.items():
-                try:
-                    logging.info(f"Stopping plugin: {plugin_name}")
-                    plugin.stop()
-                    logging.info(f"Plugin {plugin_name} stopped successfully")
-                except Exception as e:
-                    logging.error(f"Error stopping plugin {plugin_name}: {str(e)}", exc_info=True)
-        logging.info("Time Capsule stopped")
+        logging.error(f"Error clearing debug log: {e}")
 
-class TimeCapsuleApp(TimeCapsuleApplication):
-    """Main application class for Time Capsule."""
-    def start_time_capsule(self):
-        logging.info("TimeCapsuleApp.start_time_capsule called")
-        start_time_capsule(self.plugin_manager)
+def configure_logging():
+    clear_debug_log()
+    logging.basicConfig(
+        filename=DEBUG_LOG,
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    logging.getLogger('werkzeug').setLevel(logging.ERROR)
+    logging.getLogger('urllib3').setLevel(logging.WARNING)
+
+def create_app(shutdown_event):
+    app = Flask(__name__)
+    time_capsule = TimeCapsule()
+    time_capsule.initialize()
+    configure_routes(app, time_capsule, shutdown_event)
+    return app, time_capsule
+
+def shutdown_server(server, time_capsule):
+    print("Shutting down Time Capsule Server...")
+    logging.info("Shutting down Time Capsule...")
+    time_capsule.stop()
+    if server:
+        server.shutdown()
+    print("Server shutdown complete.")
+    logging.info("Server shutting down...")
+
+def force_quit():
+    logging.error("Force quitting the application...")
+    os._exit(1)
+
+def signal_handler(signum, frame):
+    logging.info(f"Received signal {signum}. Initiating shutdown...")
+    shutdown_event.set()
+
+def is_port_in_use(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(('localhost', port)) == 0
+
+def main():
+    configure_logging()
+    logging.info("Initializing Time Capsule...")
+
+    global shutdown_event
+    shutdown_event = threading.Event()
+
+    app, time_capsule = create_app(shutdown_event)
+
+    global server
+    server = None
+
+    host = '0.0.0.0'
+    for port in range(5000, 5011):
+        if not is_port_in_use(port):
+            try:
+                server = make_server(host, port, app)
+                print(f"Starting Time Capsule Server on port {port}...")
+                print("Time Capsule is now running.")
+                print(f"\nAccess the web interface at http://localhost:{port}")
+
+                atexit.register(shutdown_server, server, time_capsule)
+
+                signal.signal(signal.SIGINT, signal_handler)
+                signal.signal(signal.SIGTERM, signal_handler)
+
+                server_thread = threading.Thread(target=server.serve_forever)
+                server_thread.start()
+
+                while not shutdown_event.is_set():
+                    time.sleep(1)
+
+                logging.info("Initiating graceful shutdown...")
+                shutdown_server(server, time_capsule)
+
+                server_thread.join(timeout=10)
+
+                if server_thread.is_alive():
+                    logging.warning("Graceful shutdown timed out. Force quitting...")
+                    force_quit()
+
+                break
+            except Exception as e:
+                logging.error(f"Error starting server on port {port}: {e}")
+    else:
+        logging.error("No available ports found between 5000 and 5010.")
+        print("No available ports found. Please check your network configuration.")
+        sys.exit(1)
+
+    sys.exit(0)
 
 if __name__ == "__main__":
-    app = TimeCapsuleApp()
-    try:
-        logging.info("Starting TimeCapsuleApp")
-        app.run()
-    except Exception as e:
-        logging.error(f"Unhandled exception in main: {str(e)}", exc_info=True)
-    finally:
-        logging.info("TimeCapsuleApp finished")
-    print("Exiting Time Capsule. Goodbye!")
+    main()

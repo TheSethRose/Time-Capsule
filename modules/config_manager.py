@@ -58,6 +58,10 @@ class Config:
         """Get the default user ID."""
         return self.config["user"]["default_user_id"]
 
+    def get_refresh_interval(self):
+        """Get the refresh interval for the web interface."""
+        return self.config.get("refresh_interval", 5)  # Default to 5 if not specified
+
 config = Config()
 
 # Use these functions to access configuration values
