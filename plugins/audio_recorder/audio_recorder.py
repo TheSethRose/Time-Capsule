@@ -1,4 +1,4 @@
-# plugins/audio_recorder/audio_recorder.py
+# Audio Recorder plugin for capturing and processing audio input
 
 import pyaudio
 import numpy as np
@@ -12,6 +12,7 @@ from .transcription_service import TranscriptionService
 class AudioRecorder:
     """Class for recording audio and managing the transcription service."""
     def __init__(self):
+        # Initialize audio recording components
         self.audio_queue = queue.Queue()
         self.sample_rate = config.get_audio_sample_rate()
         self.chunk_size = config.get_audio_chunk_size()
@@ -36,6 +37,7 @@ class AudioRecorder:
         logging.debug("AudioRecorder started")
 
     def _initialize_model(self):
+        """Initialize the transcription model."""
         model_name = config.get_whisper_model_name()
         if not os.path.exists(self.model_path):
             os.makedirs(self.model_path)

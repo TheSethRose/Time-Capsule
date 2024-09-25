@@ -1,4 +1,4 @@
-# modules/config_manager.py
+# Configuration manager for loading and saving application settings
 
 import os
 import json
@@ -6,7 +6,8 @@ import json
 class Config:
     """Configuration manager for loading and saving application settings."""
     def __init__(self):
-        self.config_file = "config.json"  # Path to config.json in the main directory
+        # Path to config.json in the main directory
+        self.config_file = "config.json"
         self.config = self._load_config()
 
     def _load_config(self):

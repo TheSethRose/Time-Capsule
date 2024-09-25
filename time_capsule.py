@@ -6,16 +6,19 @@ import threading
 
 class TimeCapsule:
     def __init__(self):
+        # Initialize core components
         self.db_manager = None
         self.plugin_manager = PluginManager()
         self.running = False
         self.stop_event = threading.Event()
 
     def initialize(self):
+        """Initialize the TimeCapsule components."""
         logging.info("Initializing Time Capsule...")
         self.db_manager = DatabaseManager(config.get_database_path())
 
     def start(self):
+        """Start the TimeCapsule and its plugins."""
         if self.running:
             logging.warning("Time Capsule is already running")
             return False
@@ -33,6 +36,7 @@ class TimeCapsule:
         return True
 
     def stop(self):
+        """Stop the TimeCapsule and its plugins."""
         if not self.running:
             logging.warning("Time Capsule is not running")
             return False
@@ -50,12 +54,15 @@ class TimeCapsule:
         return True
 
     def get_plugins(self):
+        """Get the list of available plugins."""
         return self.plugin_manager.get_plugins()
 
     def toggle_plugin(self, plugin_name):
+        """Toggle the enabled state of a plugin."""
         return self.plugin_manager.toggle_plugin(plugin_name)
 
     def get_status(self):
+        """Get the current status of the TimeCapsule and its plugins."""
         return {
             'running': self.running,
             'plugins': self.plugin_manager.get_plugin_statuses(),

@@ -1,3 +1,5 @@
+# Plugin manager for loading and managing plugins
+
 import importlib
 import os
 import logging
